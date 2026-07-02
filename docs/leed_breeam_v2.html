@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LEED v5 BD+C + BREEAM NC 2018 — Dashboard de Certificação</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+<style>
+:root{
+  --bg:#F1F2F7;--card:#FFFFFF;--bd:#E3E5EF;--bds:#C8CAD8;
+  --t1:#17192E;--t2:#5A5C78;--t3:#9899B0;
+  --blue:#0E55A0;--blue-bg:#E6F1FB;--blue-br:#85B7EB;
+  --green:#2E5A0B;--green-bg:#EAF3DE;--green-br:#8DC44A;
+  --amber:#7A4508;--amber-bg:#FAEEDA;--amber-br:#E89E27;
+  --red:#7A1B1B;--red-bg:#FCEBEB;--red-br:#F09595;
+  --purple:#332E89;--purple-bg:#EEEDFE;--purple-br:#AFA9EC;
+  --teal:#075040;--teal-bg:#E1F5EE;--teal-br:#5DCAA5;
+  --forma:#382880;--forma-bg:#EEEDFE;--forma-br:#9B96E8;
+  --gray-bg:#F7F8FC;
+  --r:10px;--font:-apple-system,'Inter','Segoe UI',system-ui,sans-serif;--mono:'SF Mono','Fira Code','Consolas',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--t1);font-family:var(--font);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 20px 80px}
+
+/* ── Header ── */
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.hdr-l .eye{font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.09em;text-transform:uppercase;margin-bottom:5px}
+.hdr-l .title{font-size:24px;font-weight:600;color:var(--t1);letter-spacing:-.025em;margin-bottom:4px}
+.hdr-l .sub{font-size:12px;color:var(--t2);max-width:560px;line-height:1.5}
+.stats{display:flex;gap:6px;flex-shrink:0}
+.stat{background:var(--card);border:0.5px solid var(--bd);border-radius:8px;padding:10px 16px;text-align:center;min-width:72px}
+.stat-n{font-size:22px;font-weight:600;color:var(--t1);line-height:1}
+.stat-l{font-size:9px;font-weight:600;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;margin-top:3px}
+
+/* ── Search + Filters ── */
+.toolbar{margin-bottom:14px}
+.search-row{display:flex;gap:8px;margin-bottom:10px}
+.si{flex:1;background:var(--card);border:0.5px solid var(--bd);border-radius:8px;padding:9px 14px;font-size:12px;color:var(--t2);outline:none;font-family:inherit;transition:border-color .12s}
+.si:focus{border-color:var(--blue);color:var(--t1)}
+.si::placeholder{color:var(--t3)}
+.clr{background:var(--card);border:0.5px solid var(--bd);border-radius:8px;padding:9px 14px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;white-space:nowrap;transition:background .1s}
+.clr:hover{background:var(--bg)}
+.pills{display:flex;gap:5px;flex-wrap:wrap}
+.fp{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:4px 11px;border-radius:20px;border:0.5px solid var(--bd);background:var(--card);color:var(--t2);cursor:pointer;white-space:nowrap;transition:all .12s;user-select:none}
+.fp:hover{border-color:var(--bds);color:var(--t1)}
+.fp.on{background:var(--t1);border-color:var(--t1);color:#fff}
+.fp .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* ── Cards ── */
+.cards{display:flex;flex-direction:column;gap:10px}
+.card{background:var(--card);border:0.5px solid var(--bd);border-radius:var(--r);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);overflow:hidden;box-shadow:0 1px 3px rgba(20,20,50,.04);transition:border-color .12s,box-shadow .12s}
+.card:hover{border-color:var(--bds);box-shadow:0 2px 10px rgba(20,20,50,.07)}
+.card.hidden{display:none!important}
+
+/* left panel */
+.cl{padding:16px 18px;border-right:0.5px solid var(--bd)}
+.cl-head{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.cl-icon{font-size:16px;flex-shrink:0}
+.cl-name{font-size:14px;font-weight:600;color:var(--t1);line-height:1.3}
+.cl-desc{font-size:12px;color:var(--t2);line-height:1.65;margin-bottom:10px}
+.cl-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.ctag{font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;border:0.5px solid;white-space:nowrap}
+.cl-refs{font-size:11px;color:var(--t3);line-height:1.6}
+.cl-note{font-size:11px;color:var(--t3);line-height:1.5;margin-top:8px;padding-top:8px;border-top:0.5px solid var(--bd)}
+
+/* right panel */
+.crp{padding:16px 18px;background:var(--gray-bg)}
+.sec{margin-bottom:12px}
+.sec:last-child{margin-bottom:0}
+.sec-t{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;margin-bottom:5px;padding-bottom:4px;border-bottom:0.5px solid var(--bd)}
+.row{display:flex;align-items:baseline;justify-content:space-between;gap:6px;padding:4px 0;border-bottom:0.5px solid var(--bd);font-size:12px}
+.row:last-child{border-bottom:none}
+.rl{color:var(--t2);flex:1;line-height:1.3}
+.rv{font-weight:600;color:var(--t1);white-space:nowrap;font-size:12px}
+.rb{font-size:10px;font-weight:500;padding:2px 6px;border-radius:4px;margin-left:5px;white-space:nowrap;flex-shrink:0}
+.rb-ok{background:var(--green-bg);color:var(--green)}
+.rb-warn{background:var(--amber-bg);color:var(--amber)}
+.rb-no{background:var(--red-bg);color:var(--red)}
+.rb-req{background:var(--red-bg);color:var(--red)}
+.rb-mun{background:var(--gray-bg);color:var(--t2);border:0.5px solid var(--bd)}
+.rb-nat{background:var(--teal-bg);color:var(--teal)}
+.rb-plat{background:var(--purple-bg);color:var(--purple)}
+.rb-blue{background:var(--blue-bg);color:var(--blue)}
+
+/* tag colors */
+.c-blue{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-br)}
+.c-green{background:var(--green-bg);color:var(--green);border-color:var(--green-br)}
+.c-amber{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-br)}
+.c-red{background:var(--red-bg);color:var(--red);border-color:var(--red-br)}
+.c-purple{background:var(--purple-bg);color:var(--purple);border-color:var(--purple-br)}
+.c-teal{background:var(--teal-bg);color:var(--teal);border-color:var(--teal-br)}
+.c-gray{background:var(--gray-bg);color:var(--t2);border-color:var(--bd)}
+
+/* BIM card */
+.bim-card{background:var(--blue-bg);border:0.5px solid var(--blue-br);border-radius:6px;padding:10px 12px;margin-top:10px}
+.bim-t{font-size:10px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.bim-d{font-size:11px;color:var(--blue);line-height:1.6}
+.bt{display:inline-block;font-family:var(--mono);font-size:9px;background:#fff;border:0.5px solid var(--blue-br);color:var(--blue);padding:1px 5px;border-radius:3px;margin:2px 2px 0 0}
+
+/* Platinum box */
+.plat-box{background:var(--purple-bg);border:0.5px solid var(--purple-br);border-radius:6px;padding:9px 12px;margin-top:10px}
+.plat-t{font-size:10px;font-weight:600;color:var(--purple);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.plat-d{font-size:11px;color:var(--purple);line-height:1.6}
+
+/* BREEAM chips */
+.br-chip{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:500;background:var(--teal-bg);color:var(--teal);border:0.5px solid var(--teal-br);padding:2px 8px;border-radius:20px;margin:2px 2px 0 0}
+
+/* Forma chips */
+.fo-chip{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:500;background:var(--forma-bg);color:var(--forma);border:0.5px solid var(--forma-br);padding:2px 8px;border-radius:20px;margin:2px 2px 0 0}
+
+/* no results */
+.empty{text-align:center;padding:48px;color:var(--t3);font-size:13px;display:none}
+
+/* Certification scale (overview) */
+.ov-scale{display:flex;height:28px;border-radius:6px;overflow:hidden;border:0.5px solid var(--bd);margin-bottom:6px}
+.ov-seg{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-direction:column;line-height:1.2;gap:1px}
+.ov-cats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:6px}
+.ov-cat{background:var(--card);border:0.5px solid var(--bd);border-radius:8px;padding:8px 10px;cursor:pointer;text-align:center;transition:border-color .1s}
+.ov-cat:hover{border-color:var(--bds)}
+.ov-cat-n{font-size:10px;font-weight:500;color:var(--t3);margin-bottom:1px}
+.ov-cat-p{font-size:18px;font-weight:600;color:var(--t1);line-height:1.1}
+.ov-cat-s{font-size:9px;color:var(--t3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-l">
+    <div class="eye">Forma Site Design · Portugal Continental</div>
+    <div class="title">LEED v5 BD+C + BREEAM NC 2018</div>
+    <div class="sub">Requisitos práticos, thresholds legais e dicas de integração BIM Revit, por categoria de certificação.</div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-n">8</div><div class="stat-l">Categorias</div></div>
+    <div class="stat"><div class="stat-n">38<span style="font-size:14px">+</span></div><div class="stat-l">Créditos</div></div>
+    <div class="stat"><div class="stat-n">PT</div><div class="stat-l">Contexto</div></div>
+  </div>
+</div>
+
+<!-- SEARCH + FILTERS -->
+<div class="toolbar">
+  <div class="search-row">
+    <input class="si" id="search" placeholder="Pesquisar por categoria, diploma, limite ou indicador..." oninput="doSearch()">
+    <button class="clr" onclick="clearAll()">Limpar filtros</button>
+  </div>
+  <div class="pills">
+    <div class="fp on" data-f="all" onclick="fp(this)"><span class="dot" style="background:var(--t1)"></span>Todos</div>
+    <div class="fp" data-f="ip" onclick="fp(this)"><span class="dot" style="background:#7F77DD"></span>IP · Processo</div>
+    <div class="fp" data-f="lt" onclick="fp(this)"><span class="dot" style="background:#D85A30"></span>LT · Localização</div>
+    <div class="fp" data-f="ss" onclick="fp(this)"><span class="dot" style="background:#639922"></span>SS · Local</div>
+    <div class="fp" data-f="we" onclick="fp(this)"><span class="dot" style="background:#185FA5"></span>WE · Água</div>
+    <div class="fp" data-f="ea" onclick="fp(this)"><span class="dot" style="background:#EF9F27"></span>EA · Energia</div>
+    <div class="fp" data-f="mr" onclick="fp(this)"><span class="dot" style="background:#1D9E75"></span>MR · Materiais</div>
+    <div class="fp" data-f="eq" onclick="fp(this)"><span class="dot" style="background:#5B5BD6"></span>EQ · Ambiente</div>
+    <div class="fp" data-f="pr" onclick="fp(this)"><span class="dot" style="background:#888780"></span>PR · Prioridades</div>
+    <div class="fp" data-f="plat" onclick="fp(this)"><span class="dot" style="background:#9290E8"></span>Platinum ⚡</div>
+    <div class="fp" data-f="breeam" onclick="fp(this)"><span class="dot" style="background:#1D9E75"></span>BREEAM</div>
+  </div>
+</div>
+
+<!-- CARDS -->
+<div class="cards" id="cards">
+
+<!-- ── OVERVIEW ── -->
+<div class="card" data-cat="all overview">
+  <div class="cl" style="border-left:4px solid #888780">
+    <div class="cl-head"><i class="ti ti-chart-bar cl-icon" style="color:#888780"></i><span class="cl-name">Visão geral — LEED v5 BD+C</span></div>
+    <div class="cl-desc">110 pontos máximo. Certified 40–49 · Silver 50–59 · Gold 60–79 · Platinum 80+. Platinum exige requisitos adicionais obrigatórios definidos no Apêndice I além da pontuação mínima.</div>
+    <div class="ov-cats">
+      <div class="ov-cat" style="border-top:3px solid #7F77DD"><div class="ov-cat-n">IP</div><div class="ov-cat-p">1</div><div class="ov-cat-s">4 prereqs</div></div>
+      <div class="ov-cat" style="border-top:3px solid #D85A30"><div class="ov-cat-n">LT</div><div class="ov-cat-p">14</div><div class="ov-cat-s">5 créditos</div></div>
+      <div class="ov-cat" style="border-top:3px solid #639922"><div class="ov-cat-n">SS</div><div class="ov-cat-p">10</div><div class="ov-cat-s">1 prereq · 6 créd.</div></div>
+      <div class="ov-cat" style="border-top:3px solid #185FA5"><div class="ov-cat-n">WE</div><div class="ov-cat-p">9</div><div class="ov-cat-s">2 prereqs · 2 créd.</div></div>
+      <div class="ov-cat" style="border-top:3px solid #EF9F27"><div class="ov-cat-n">EA</div><div class="ov-cat-p">33</div><div class="ov-cat-s">5 prereqs · 7 créd. NC</div></div>
+      <div class="ov-cat" style="border-top:3px solid #1D9E75"><div class="ov-cat-n">MR</div><div class="ov-cat-p">18</div><div class="ov-cat-s">2 prereqs · 5 créd. NC</div></div>
+      <div class="ov-cat" style="border-top:3px solid #5B5BD6"><div class="ov-cat-n">EQ</div><div class="ov-cat-p">16</div><div class="ov-cat-s">3 prereqs · 5 créd.</div></div>
+      <div class="ov-cat" style="border-top:3px solid #888780"><div class="ov-cat-n">PR</div><div class="ov-cat-p">9</div><div class="ov-cat-s">2 créditos</div></div>
+    </div>
+    <div class="cl-tags">
+      <span class="ctag c-blue">🔵 RGEU — ref. técnica até jun-2026</span>
+      <span class="ctag c-green">🟢 Legislação paralela vigente</span>
+      <span class="ctag c-amber">🟠 Lacuna / norma transitória</span>
+      <span class="ctag" style="background:#FEF8DC;color:#6B5000;border-color:#C49A00">🟡 Espaços exteriores</span>
+    </div>
+  </div>
+  <div class="crp">
+    <div class="sec">
+      <div class="sec-t" style="color:#888780">Escala de certificação LEED v5 — 110 pts máx.</div>
+      <div class="ov-scale">
+        <div class="ov-seg" style="background:#E8E9F0;color:var(--t2);flex:9">Não cert.<span style="font-size:9px">0–39</span></div>
+        <div class="ov-seg" style="background:#6B6D84;color:#fff;flex:10">Certified<span style="font-size:9px">40–49</span></div>
+        <div class="ov-seg" style="background:#185FA5;color:#fff;flex:10">Silver<span style="font-size:9px">50–59</span></div>
+        <div class="ov-seg" style="background:#EF9F27;color:#fff;flex:20">Gold<span style="font-size:9px">60–79</span></div>
+        <div class="ov-seg" style="background:#7F77DD;color:#fff;flex:31">Platinum<span style="font-size:9px">80–110</span></div>
+      </div>
+    </div>
+    <div class="sec">
+      <div class="sec-t" style="color:#7F77DD">Requisitos adicionais Platinum — Apêndice I</div>
+      <div class="row"><span class="rl">EAc1 — Electrification</span><span class="rv">5 pts NC</span><span class="rb rb-plat">4 pts C&S</span></div>
+      <div class="row"><span class="rl">EAc3 — Enhanced Energy Efficiency</span><span class="rv">8 pts NC</span><span class="rb rb-plat">5 pts C&S</span></div>
+      <div class="row"><span class="rl">EAc4 — Renewable Energy</span><span class="rv">100% energia</span><span class="rb rb-plat">obrigatório</span></div>
+      <div class="row"><span class="rl">MRc2 — Reduce Embodied Carbon</span><span class="rv">≥ 20% redução A1–A5</span><span class="rb rb-plat">obrigatório</span></div>
+    </div>
+    <div class="sec">
+      <div class="sec-t" style="color:var(--teal)">BREEAM NC 2018 — pesos principais</div>
+      <div class="row"><span class="rl">Ene — energia</span><span class="rv">16%</span></div>
+      <div class="row"><span class="rl">Mat — materiais</span><span class="rv">15%</span></div>
+      <div class="row"><span class="rl">Hea — saúde e bem-estar</span><span class="rv">14%</span></div>
+      <div class="row"><span class="rl">LE — ecologia</span><span class="rv">13%</span></div>
+      <div class="row"><span class="rl">Outstanding / Excellent / Very Good / Good / Pass</span><span class="rv">85% / 70% / 55% / 45% / 36%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── IP ── -->
+<div class="card" data-cat="ip">
+  <div class="cl" style="border-left:4px solid #7F77DD">
+    <div class="cl-head"><i class="ti ti-refresh cl-icon" style="color:#7F77DD"></i><span class="cl-name">IP · Integrative Process</span></div>
+    <div class="cl-desc">Processo de projeto integrado desde a fase de conceito. Avaliar riscos climáticos, impactos humanos e carbono operacional como pré-requisitos. O charette IPc1 é o momento chave para integrar todas as análises Forma.</div>
+    <div class="cl-tags">
+      <span class="ctag c-red">4 pré-requisitos</span>
+      <span class="ctag c-purple">1 pt NC · 1–6 pts C&S</span>
+      <span class="ctag c-gray">F_AUDIT · F_HAZARD</span>
+    </div>
+    <div class="cl-refs">Arc (arc.gbci.org) · USGBC BD+C v5 Apêndice I</div>
+    <div class="bim-card">
+      <div class="bim-t"><i class="ti ti-cube"></i>BIM Revit — F_AUDIT + F_HAZARD + F_DOC</div>
+      <div class="bim-d">Shared params em Project Information: <span class="bt">IPp1_hazard_count</span><span class="bt">IPp1_ipcc_scenario</span><span class="bt">IPp3_horizon_years</span><span class="bt">IPc1_charette_date</span>. Usar Dynamo para exportar lista de hazards para relatório PDF. O charette IPc1 é o momento ideal para apresentar as análises Forma à equipa.</div>
+    </div>
+    <div class="cl-note">BREEAM: Man 01 (projeto sustentável) · Man 04 (stakeholder consultation) · Mat 01 (LCA desde RIBA 1–2)</div>
+    <div style="margin-top:8px"><span class="fo-chip"><i class="ti ti-sun"></i>Sun Hours</span><span class="fo-chip"><i class="ti ti-leaf"></i>Embodied Carbon</span><span class="fo-chip"><i class="ti ti-bolt"></i>Operational Energy</span><span class="fo-chip"><i class="ti ti-volume"></i>Noise</span></div>
+  </div>
+  <div class="crp">
+    <div class="sec">
+      <div class="sec-t" style="color:var(--red)">Pré-requisitos obrigatórios</div>
+      <div class="row"><span class="rl">IPp1 — Climate Resilience Assessment</span><span class="rv">≥ 2 hazards</span><span class="rb rb-req">cenário IPCC</span></div>
+      <div class="row"><span class="rl">IPp2 — Human Impact Assessment</span><span class="rv">4 categorias</span><span class="rb rb-req">obrigatório</span></div>
+      <div class="row"><span class="rl">IPp3 — Carbon Assessment (via Arc)</span><span class="rv">25 anos</span><span class="rb rb-req">projeção USGBC</span></div>
+      <div class="row"><span class="rl">IPp4 — Tenant Guidelines</span><span class="rv">antes do lease</span><span class="rb rb-req">C&S apenas</span></div>
+    </div>
+    <div class="sec">
+      <div class="sec-t" style="color:var(--green)">Créditos — thresholds</div>
+      <div class="row"><span class="rl">IPc1 — Integrative Design Process</span><span class="rv">1 pt</span><span class="rb rb-ok">≥ 4 participantes</span></div>
+      <div class="row"><span class="rl">IPc1 — OPR com objetivos mensuráveis</span><span class="rv">obrigatório</span><span class="rb rb-ok">documentado</span></div>
+      <div class="row"><span class="rl">IPc2 — Green Leases (C&S)</span><span class="rv">1–6 pts</span><span class="rb rb-ok">≥ 16 práticas = 6 pts</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── LT ── -->
+<div class="card" data-cat="lt">
+  <div class="cl" style="border-left:4px solid #D85A30">
+    <div class="cl-head"><i class="ti ti-map-pin cl-icon" style="color:#D85A30"></i><span class="cl-name">LT · Location and Transportation</span></div>
+    <div class="cl-desc">Escolha de localização, proximidade a transportes, conectividade pedonal, gestão da procura de transportes e infraestrutura para veículos elétricos. 14 pontos máx., sem pré-requisitos.</div>
+    <div class="cl-tags">
+      <span class="ctag c-green">14 pts máx.</span>
+      <span class="ctag c-gray">F_MOBILITY · F_SITE · F_COMMUNITY</span>
+    </div>
+    <div class="cl-refs">RJUE · DL 9/2007 RGR · Portaria 216-B/2008</div>
+    <div class="bim-card">
+      <div class="bim-t"><i class="ti ti-cube"></i>BIM Revit — F_MOBILITY + F_SITE</div>
+      <div class="bim-d">Shared params: <span class="bt">walk_score</span><span class="bt">transit_weekday_trips</span><span class="bt">parking_reduction_pct</span><span class="bt">EVSE_pct</span><span class="bt">bike_network_m</span>. Revit Site para calcular afastamentos a elementos sensíveis.</div>
+    </div>
+    <div class="cl-note">BREEAM: Tra 01 (transportes) · Tra 02 (ciclovias+duches) · Tra 03 (VE) · Tra 04 (plano mobilidade) · Tra 05 (estacionamento máx.) — peso Tra 10%</div>
+    <div style="margin-top:8px"><span class="fo-chip"><i class="ti ti-ruler-measure"></i>Area Metrics</span><span class="fo-chip"><i class="ti ti-volume"></i>Noise</span><span class="fo-chip"><i class="ti ti-temperature"></i>Microclimate</span></div>
+  </div>
+  <div class="crp">
+    <div class="sec">
+      <div class="sec-t" style="color:#D85A30">Créditos chave — thresholds</div>
+      <div class="row"><span class="rl">LTc1 — buffer a cursos de água</span><span class="rv">≥ 30 m</span><span class="rb rb-ok">zonas húmidas ≥ 15 m</span></div>
+      <div class="row"><span class="rl">LTc1 — encostas &gt;25% preservadas</span><span class="rv">≥ 60%</span><span class="rb rb-ok">15–25%: ≥ 40%</span></div>
+      <div class="row"><span class="rl">LTc2 — emprego local de construção</span><span class="rv">≥ 15%</span><span class="rb rb-ok">1 pt</span></div>
+      <div class="row"><span class="rl">LTc2 — recetores sensíveis</span><span class="rv">≥ 90 m</span><span class="rb rb-ok">sensitive location</span></div>
+      <div class="row"><span class="rl">LTc3 — Walk Score</span><span class="rv">≥ 60 = 1 pt</span><span class="rb rb-ok">≥ 80 = 3 pts</span></div>
+      <div class="row"><span class="rl">LTc3 — densidade (FAR)</span><span class="rv">≥ 0,5 = 1 pt</span><span class="rb rb-warn">FAR ≥ 0,8 = 2 pts</span></div>
+      <div class="row"><span class="rl">LTc4 — redução estacionamento</span><span class="rv">30%=1 · 60%=2 · 100%=3 pts</span></div>
+      <div class="row"><span class="rl">LTc4 — rede ciclável</span><span class="rv">≥ 4.800 m</span><span class="rb rb-ok">ligação confirmada</span></div>
+      <div class="row"><span class="rl">LTc4 — duches</span><span class="rv">≥ 1% ocupantes</span><span class="rb rb-warn">obrigatório para pts</span></div>
+      <div class="row"><span class="rl">LTc5 — EVSE lugares (comercial)</span><span class="rv">≥ 5% = 1 pt</span><span class="rb rb-ok">≥ 10% = 2 pts</span></div>
+      <div class="row"><span class="rl">LTc5 — tensão/amperes VE</span><span class="rv">≥ 208–240 V</span><span class="rb rb-ok">EV-ready 40 A</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SS ── -->
+<div class="card" data-cat="ss">
+  <div class="cl" style="border-left:4px solid #639922">
+    <div class="cl-head"><i class="ti ti-trees cl-icon" style="color:#639922"></i><span class="cl-name">SS · Sustainable Sites</span></div>
+    <div class="cl-desc">Proteção do local, biodiversidade, gestão pluvial, resiliência ao calor e poluição luminosa. 10 pts máx. + 1 pré-requisito de controlo de erosão. Articula diretamente com as análises Forma de sol, vento, microclima e espaços verdes.</div>
+    <div class="cl-tags">
+      <span class="ctag c-red">1 pré-requisito</span>
+      <span class="ctag c-green">10 pts máx.</span>
+      <span class="ctag c-gray">F_SITE</span>
+    </div>
+    <div class="cl-refs">DL 9/2007 RGR · DL 146/2006 RAGRA · Portaria 216-B/2008 · RJUE Art.º 44</div>
+    <div class="bim-card">
+      <div class="bim-t"><i class="ti ti-cube"></i>BIM Revit — F_SITE</div>
+      <div class="bim-d">Shared params: <span class="bt">vegetated_area_m2</span><span class="bt">roof_SRI_initial</span><span class="bt">paving_SR</span><span class="bt">rainfall_percentile</span><span class="bt">native_species_count</span><span class="bt">bird_glass_factor</span>. Revit Analysis para áreas de cobertura verde. Exportar runoff para cálculo hidráulico.</div>
+    </div>
+    <div class="cl-note">BREEAM: LE 01–05 (ecologia, 13%) · Pol 03 (águas pluviais, obrigatório) · Pol 05 (redução ruído)</div>
+    <div style="margin-top:8px"><span class="fo-chip"><i class="ti ti-sun"></i>Sun Hours</span><span class="fo-chip"><i class="ti ti-wind"></i>Wind</span><span class="fo-chip"><i class="ti ti-temperature"></i>Microclimate</span><span class="fo-chip"><i class="ti ti-tree"></i>Green Spaces</span><span class="fo-chip"><i class="ti ti-volume"></i>Noise</span></div>
+  </div>
+  <div class="crp">
+    <div class="sec">
+      <div class="sec-t" style="color:var(--red)">Pré-requisito</div>
+      <div class="row"><span class="rl">SSp1 — inspeções de erosão</span><span class="rv">≤ 7 dias</span><span class="rb rb-req">chuva ≥ 6 mm em 24h</span></div>
+    </div>
+    <div class="sec">
+      <div class="sec-t" style="color:var(--green)">Créditos — thresholds</div>
+      <div class="row"><span class="rl">SSc1 — greenfield preservado</span><span class="rv">≥ 40%</span><span class="rb rb-ok">1–2 pts</span></div>
+      <div class="row"><span class="rl">SSc1 — espécies nativas</span><span class="rv">≥ 10 espécies</span><span class="rb rb-ok">polinizadores ≥ 10 m²</span></div>
+      <div class="row"><span class="rl">SSc1 — vidro bird-friendly</span><span class="rv">fator ≤ 30</span><span class="rb rb-warn">até 15 m altura</span></div>
+      <div class="row"><span class="rl">SSc2 — espaço ext. acessível</span><span class="rv">≥ 30% área site</span><span class="rb rb-ok">vegetado ≥ 25%</span></div>
+      <div class="row"><span class="rl">SSc2 — lugares sentados</span><span class="rv">≥ 5% ocupantes</span><span class="rb rb-ok">1 pt</span></div>
+      <div class="row"><span class="rl">SSc3 — retenção pluvial</span><span class="rv">P80=1 · P85=2 · P90=3 pts</span></div>
+      <div class="row"><span class="rl">SSc4 — cooling station (calor)</span><span class="rv">≤ 400 m</span><span class="rb rb-ok">+ SR pav. ≥ 0,33</span></div>
+      <div class="row"><span class="rl">SSc5 — SRI cobertura (low slope)</span><span class="rv">inicial ≥ 82</span><span class="rb rb-warn">envelhecido ≥ 64</span></div>
+      <div class="row"><span class="rl">SSc5 — SR pavimento</span><span class="rv">inicial ≥ 0,33</span><span class="rb rb-ok">1–2 pts</span></div>
+      <div class="row"><span class="rl">SSc6 — luminância sinalização LZ1</span><span class="rv">≤ 50 cd/m²</span><span class="rb rb-warn">LZ2 ≤ 100 · LZ3 ≤ 200</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── WE ── -->
+<div class="card" data-cat="we">
+  <div class="cl" style="border-left:4px solid #185FA5">
+    <div class="cl-head"><i class="ti ti-droplet cl-icon" style="color:#185FA5"></i><span class="cl-name">WE · Water Efficiency</span></div>
+    <div class="cl-desc">Medição, eficiência mínima obrigatória e redução avançada do consumo de água interior, exterior e de processos. 9 pts máx. + 2 pré-requisitos. Sem análise Forma direta — usar Area Metrics para runoff.</div>
+    <div class="cl-tags">
+      <span class="ctag c-red">2 pré-requisitos</span>
+      <span class="ctag c-green">9 pts máx.</span>
+      <span class="ctag c-gray">F_WATER</span>
+    </div>
+    <div class="cl-refs">DL 118/2013 REH (RECS para comercial)</div>
+    <div class="bim-card">
+      <div class="bim-t"><i class="ti ti-cube"></i>BIM Revit — F_WATER</div>
+      <div class="bim-d">Plumbing Fixture Schedule com: <span class="bt">flush_rate_lpf</span><span class="bt">flow_rate_lpm</span><span class="bt">WaterSense_cert</span><span class="bt">submeter_zone</span><span class="bt">TIR_reduction_pct</span>. Calcular redução vs. baseline LEED via Dynamo/Excel.</div>
+    </div>
+    <div class="cl-note">BREEAM: Wat 01 (consumo, 4 créd.) · Wat 02 (fugas) · Wat 03 (rega) · Wat 04 (arrefecimento) — peso Wat 7%</div>
+    <div style="margin-top:8px"><span class="fo-chip"><i class="ti ti-ruler-measure"></i>Area Metrics (runoff)</span></div>
+  </div>
+  <div class="crp">
+    <div class="sec">
+      <div class="sec-t" style="color:var(--red)">Pré-requisitos — caudais máximos (WEp2)</div>
+      <div class="row"><span class="rl">Sanita / retrete</span><span class="rv">≤ 4,8 lpf</span><span class="rb rb-req">obrigatório</span></div>
+      <div class="row"><span class="rl">Urinol</span><span class="rv">≤ 1,9 lpf</span><span class="rb rb-req">obrigatório</span></div>
+      <div class="row"><span class="rl">Lavatório público</span><span class="rv">≤ 1,9 lpm</span><span class="rb rb-req">obrigatório</span></div>
+      <div class="row"><span class="rl">Lavatório privado</span><span class="rv">≤ 5,7 lpm</span><span class="rb rb-req">obrigatório</span></div>
+      <div class="row"><span class="rl">Duche</span><span class="rv">≤ 7,6 lpm</span><span class="rb rb-req">obrigatório</span></div>
+      <div class="row"><span class="rl">Via desempenho (alternativa)</span><span class="rv">≥ 20% redução</span><span class="rb rb-ok">agregada</span></div>
+      <div class="row"><span class="rl">Rega exterior — redução TIR (WEp2)</span><span class="rv">no irrigation</span><span class="rb rb-req">ou ≥ 30% redução</span></div>
+    </div>
+    <div class="sec">
+      <div class="sec-t" style="color:var(--green)">Créditos</div>
+      <div class="row"><span class="rl">WEc1 — subcontadores (cobertura)</span><span class="rv">≥ 80% fixtures</span><span class="rb rb-ok">leitura horária</span></div>
+      <div class="row"><span class="rl">WEc2 — whole-project redução</span><span class="rv">30–65% = 1–7 pts</span></div>
+      <div class="row"><span class="rl">WEc2 — rega TIR (NC)</span><span class="rv">50/75/100% = 1/2/3 pts</span></div>
+      <div class="row"><span class="rl">WEc2 — arrefecimento</span><span class="rv">25/50/100% = 1/2/3 pts</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── EA ── -->
+<div class="card" data-cat="ea plat">
+  <div class="cl" style="border-left:4px solid #EF9F27">
+    <div class="cl-head"><i class="ti ti-bolt cl-icon" style="color:#EF9F27"></i><span class="cl-name">EA · Energy and Atmosphere ⚡</span></div>
+    <div class="cl-desc">Categoria com mais pontos (33 NC / 27 C&S). Cinco pré-requisitos obrigatórios incluindo projeção de carbono, eficiência mínima ASHRAE 90.1 e commissioning. EAc1, EAc3 e EAc4 são obrigatórios para Platinum.</div>
+    <div class="cl-tags">
+      <span class="ctag c-red">5 pré-requisitos</span>
+      <span class="ctag c-green">33 pts NC · 27 pts C&S</span>
+      <span class="ctag c-purple">3 créditos Platinum</span>
+      <span class="ctag c-gray">F_ENERGY · F_REFRIGERANT_CX</span>
+    </div>
+    <div class="cl-refs">ASHRAE 90.1-2022 · DL 118/2013 REH (PT) · DL 15/2022 UPAC · REH Art.27 solar térmico</div>
+    <div class="bim-card">
+      <div class="bim-t"><i class="ti ti-cube"></i>BIM Revit — F_ENERGY + F_REFRIGERANT_CX</div>
+      <div class="bim-d">Exportar para <strong>Autodesk Insight</strong> ou <strong>Green Building Studio</strong> (EAp2/EAc3). Shared params: <span class="bt">ASHRAE_version</span><span class="bt">COP_weighted</span><span class="bt">PI_energy</span><span class="bt">renewable_pct</span><span class="bt">GWP_weighted</span><span class="bt">solar_zone_pct</span>. Vincular Forma Operational Energy ao modelo via IFC.</div>
+    </div>
+    <div class="cl-note">BREEAM: Ene 01 (CO₂ operacional, 9 créd.) · Ene 02 (monitorização) · Ene 05 (baixo carbono) · Pol 01 (refrigerantes) — peso Ene 16% (maior)</div>
+    <div style="margin-top:8px"><span class="fo-chip"><i class="ti ti-bolt"></i>Operational Energy</span><span class="fo-chip"><i class="ti ti-solar-panel"></i>Solar Energy</span><span class="fo-chip"><i class="ti ti-sun"></i>Sun Hours</span></div>
+  </div>
+  <div class="crp">
+    <div class="sec">
+      <div class="sec-t" style="color:var(--red)">Pré-requisitos obrigatórios</div>
+      <div class="row"><span class="rl">EAp1 — Decarbonization Plan (horizonte)</span><span class="rv">25 anos</span><span class="rb rb-req">via Arc</span></div>
+      <div class="row"><span class="rl">EAp2 — ASHRAE 90.1 (PT: REH classe mín.)</span><span class="rv">B– (Ntc/Nt ≤ 1,00)</span><span class="rb rb-req">obrigatório</span></div>
+      <div class="row"><span class="rl">EAp3 — Commissioning (CxP experiência)</span><span class="rv">≥ 2 projetos</span><span class="rb rb-req">sample ≥ 10%</span></div>
+      <div class="row"><span class="rl">EAp4 — Energy Reporting (compromisso)</span><span class="rv">5 anos</span><span class="rb rb-req">annual USGBC</span></div>
+      <div class="row"><span class="rl">EAp5 — Refrigerant GWP review</span><span class="rv">GWP &gt; 700 rever</span><span class="rb rb-req">sem HCFC</span></div>
+    </div>
+    <div class="sec">
+      <div class="sec-t" style="color:var(--purple)">Créditos obrigatórios para Platinum</div>
+      <div class="row"><span class="rl">EAc1 — Electrification (sem combustão)</span><span class="rv">5 pts NC</span><span class="rb rb-plat">COP ≥ 1,8</span></div>
+      <div class="row"><span class="rl">EAc3 — Enhanced Energy (simulação)</span><span class="rv">8 pts NC</span><span class="rb rb-plat">PI ≥ 30%</span></div>
+      <div class="row"><span class="rl">EAc4 — Renewables (100% energia)</span><span class="rv">5 pts NC</span><span class="rb rb-plat">contrato ≥ 10 anos</span></div>
+    </div>
+    <div class="sec">
+      <div class="sec-t" style="color:var(--green)">Outros créditos — thresholds</div>
+      <div class="row"><span class="rl">EAc2 — peak load (simulação)</span><span class="rv">≤ 25 W/m² = 3 pts</span><span class="rb rb-ok">rec. energia ≥ 70%</span></div>
+      <div class="row"><span class="rl">EAc4 — solar zone readiness (C&S)</span><span class="rv">≥ 40% cobertura</span><span class="rb rb-ok">painel ≥ 200 A</span></div>
+      <div class="row"><span class="rl">EAc5 — MBCx (compromisso)</span><span class="rv">≥ 3 anos</span><span class="rb rb-ok">≥ 2 revisões</span></div>
+      <div class="row"><span class="rl">EAc7 — GWP ponderado</span><span class="rv">≤ 80% benchmark = 1pt</span><span class="rb rb-ok">≤ 50% = 2pts</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MR ── -->
+<div class="card" data-cat="mr plat">
+  <div class="cl" style="border-left:4px solid #1D9E75">
+    <div class="cl-head"><i class="ti ti-leaf cl-icon" style="color:#1D9E75"></i><span class="cl-name">MR · Materials and Resources</span></div>
+    <div class="cl-desc">Quantificação do carbono incorporado obrigatória (MRp2). MRc2 é obrigatório para Platinum (≥ 20% redução A1–A5). Foco em WBLCA, EPDs por categoria e rastreamento de emissões A5 em obra.</div>
+    <div class="cl-tags">
+      <span class="ctag c-red">2 pré-requisitos</span>
+      <span class="ctag c-green">18 pts NC · 21 pts C&S</span>
+      <span class="ctag c-purple">MRc2 Platinum</span>
+      <span class="ctag c-gray">F_MATERIALS</span>
+    </div>
+    <div class="cl-refs">EN 15978 (LCA) · ISO 14044 · BREEAM Mat 01 · EU ETS2 previsto 2027/28</div>
+    <div class="bim-card">
+      <div class="bim-t"><i class="ti ti-cube"></i>BIM Revit — F_MATERIALS</div>
+      <div class="bim-d">Material Library com: <span class="bt">embodied_carbon_kgCO2e</span><span class="bt">EPD_available</span><span class="bt">GWP_A1_A3</span><span class="bt">recycled_content_pct</span><span class="bt">reuse_pct</span>. Bill of Materials → exportar para <strong>One Click LCA</strong> ou <strong>Tally</strong>. Forma Embodied Carbon → IFC como referência de massa.</div>
+    </div>
+    <div class="cl-note">BREEAM: Mat 01 (LCA, obrigatório) · Mat 03 (aprovisionamento responsável) · Wst 01 (resíduos C&D, 3 créd.) · Wst 06 (adaptabilidade) — peso Mat 15%</div>
+    <div style="margin-top:8px"><span class="fo-chip"><i class="ti ti-leaf"></i>Embodied Carbon A1–A5</span></div>
+  </div>
+  <div class="crp">
+    <div class="sec">
+      <div class="sec-t" style="color:var(--red)">Pré-requisitos</div>
+      <div class="row"><span class="rl">MRp1 — Zero Waste Ops (fluxos)</span><span class="rv">orgânicos + reciclagem</span><span class="rb rb-req">e-waste + baterias</span></div>
+      <div class="row"><span class="rl">MRp2 — Embodied Carbon A1–A3</span><span class="rv">estrutura + enclosure</span><span class="rb rb-req">top 3 hotspots</span></div>
+    </div>
+    <div class="sec">
+      <div class="sec-t" style="color:var(--purple)">MRc2 — obrigatório para Platinum</div>
+      <div class="row"><span class="rl">WBLCA — baseline/média indústria</span><span class="rv">2 pts</span><span class="rb rb-plat">ponto de partida</span></div>
+      <div class="row"><span class="rl">WBLCA — redução 10 / 20 / 30 / ≥40%</span><span class="rv">3/4/5/6 pts</span><span class="rb rb-plat">Platinum: ≥ 20%</span></div>
+      <div class="row"><span class="rl">EPDs por categoria — baseline</span><span class="rv">1 pt</span><span class="rb rb-plat">≥ 20% = 2 pts</span></div>
+      <div class="row"><span class="rl">Rastreamento emissões A5 (obra)</span><span class="rv">contratante = 1 pt</span><span class="rb rb-ok">+ subcontrat. = 2 pts</span></div>
+    </div>
+    <div class="sec">
+      <div class="sec-t" style="color:var(--green)">BREEAM v7 — escala carbono incorporado</div>
+      <div class="row"><span class="rl">A++ (alvo 2030)</span><span class="rv">&lt; 350 kgCO₂e/m²</span><span class="rb rb-ok">RIBA 2030</span></div>
+      <div class="row"><span class="rl">A+</span><span class="rv">350–500 kgCO₂e/m²</span><span class="rb rb-ok">bom</span></div>
+      <div class="row"><span class="rl">A</span><span class="rv">500–650 kgCO₂e/m²</span><span class="rb rb-ok">aceitável</span></div>
+      <div class="row"><span class="rl">B</span><span class="rv">650–800 kgCO₂e/m²</span><span class="rb rb-warn">médio</span></div>
+      <div class="row"><span class="rl">C / D–G</span><span class="rv">800–1100 / &gt;1100 kgCO₂e/m²</span><span class="rb rb-no">benchmark atual</span></div>
+    </div>
+    <div class="sec">
+      <div class="sec-t" style="color:var(--green)">Outros créditos</div>
+      <div class="row"><span class="rl">MRc1 — reutilização edifício (NC)</span><span class="rv">20/35/50% = 1/2/3 pts</span></div>
+      <div class="row"><span class="rl">MRc5 — desvio C&D</span><span class="rv">50% + sep. ≥10% = 1pt</span><span class="rb rb-ok">75% = 2 pts</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── EQ ── -->
+<div class="card" data-cat="eq">
+  <div class="cl" style="border-left:4px solid #5B5BD6">
+    <div class="cl-head"><i class="ti ti-eye cl-icon" style="color:#5B5BD6"></i><span class="cl-name">EQ · Indoor Environmental Quality</span></div>
+    <div class="cl-desc">Qualidade do ar interior, experiência do ocupante (luz natural, vistas, acústica), acessibilidade, resiliência de espaços e monitorização de QAI. 16 pts máx. + 3 pré-requisitos. EQc2 é a maior oportunidade de pontos (7 pts).</div>
+    <div class="cl-tags">
+      <span class="ctag c-red">3 pré-requisitos</span>
+      <span class="ctag c-green">16 pts máx.</span>
+      <span class="ctag c-gray">F_IEQ</span>
+    </div>
+    <div class="cl-refs">ASHRAE 62.1-2022 · NP EN 17037:2021 · DL 163/2006 · RRAE DL 129/2002</div>
+    <div class="bim-card">
+      <div class="bim-t"><i class="ti ti-cube"></i>BIM Revit — F_IEQ</div>
+      <div class="bim-d">Room data sheets com: <span class="bt">sDA_pct</span><span class="bt">ASE_pct</span><span class="bt">view_area_pct</span><span class="bt">MERV_rating</span><span class="bt">VLT_glazing</span>. Revit Analysis Display Styles para mapear sDA. Exportar via IFC para Radiance/Daysim. Forma Daylight VSC calibra orientação no Revit antes de simulação detalhada.</div>
+    </div>
+    <div class="cl-note">BREEAM: Hea 01 (luz natural, 4 créd.) · Hea 02 (QAI, obrigatório) · Hea 04 (conforto térmico) · Hea 05 (acústica, 3 créd.) — peso Hea 14%</div>
+    <div style="margin-top:8px"><span class="fo-chip"><i class="ti ti-brightness"></i>Daylight VSC</span><span class="fo-chip"><i class="ti ti-sun"></i>Sun Hours</span><span class="fo-chip"><i class="ti ti-temperature"></i>Microclimate</span><span class="fo-chip"><i class="ti ti-volume"></i>Noise</span></div>
+  </div>
+  <div class="crp">
+    <div class="sec">
+      <div class="sec-t" style="color:var(--red)">Pré-requisitos obrigatórios</div>
+      <div class="row"><span class="rl">EQp2 — Filtração MERV</span><span class="rv">≥ 13</span><span class="rb rb-req">ou ePM1 ≥ 50%</span></div>
+      <div class="row"><span class="rl">EQp3 — Fumadores / idling</span><span class="rv">≥ 7,5 m</span><span class="rb rb-req">entradas + tomadas de ar</span></div>
+    </div>
+    <div class="sec">
+      <div class="sec-t" style="color:#5B5BD6">EQc2 — Occupant Experience (7 pts)</div>
+      <div class="row"><span class="rl">Luz natural — sDA (% área ocupada)</span><span class="rv">40%=1 · 55%=2 · 65%=3 · 75%=4</span></div>
+      <div class="row"><span class="rl">Vistas qualidade (% área ocupada)</span><span class="rv">75% = 2 pts · 90% = 3 pts</span></div>
+      <div class="row"><span class="rl">VLT dos vãos</span><span class="rv">&gt; 40%</span><span class="rb rb-ok">obrigatório para pontos</span></div>
+      <div class="row"><span class="rl">Iluminação — TM-30 Rf</span><span class="rv">≥ 78</span><span class="rb rb-ok">Rg ≥ 95</span></div>
+      <div class="row"><span class="rl">Luminância máxima</span><span class="rv">&lt; 6.000 cd/m²</span><span class="rb rb-ok">ou UGR ≤ 19</span></div>
+    </div>
+    <div class="sec">
+      <div class="sec-t" style="color:var(--green)">Outros créditos</div>
+      <div class="row"><span class="rl">EQc1 — ventilação extra</span><span class="rv">+15% = 1 pt</span><span class="rb rb-ok">PM2,5 ≤ 10 µg/m³</span></div>
+      <div class="row"><span class="rl">EQc3 — Acessibilidade (PT: DL 163/2006)</span><span class="rv">porta ≥ 0,86 m</span><span class="rb rb-ok">+ ≥ 10 estratégias</span></div>
+      <div class="row"><span class="rl">EQc4 — janelas operáveis</span><span class="rv">≥ 50% = 1pt · 75% = 2pts</span></div>
+      <div class="row"><span class="rl">EQc5 — CO monitorização</span><span class="rv">≤ 9 ppm</span><span class="rb rb-ok">PM2,5 ≤ 12 µg/m³</span></div>
+    </div>
+    <div class="sec">
+      <div class="sec-t" style="color:var(--green)">EN 17037 — luz natural (NP adotada em PT)</div>
+      <div class="row"><span class="rl">VSC elevado (boa luz natural)</span><span class="rv">&gt; 27%</span><span class="rb rb-ok">excelente</span></div>
+      <div class="row"><span class="rl">VSC médio (luz aceitável)</span><span class="rv">15–27%</span><span class="rb rb-warn">aceitável</span></div>
+      <div class="row"><span class="rl">VSC baixo (luz insuficiente)</span><span class="rv">&lt; 15%</span><span class="rb rb-no">insuficiente</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PR ── -->
+<div class="card" data-cat="pr">
+  <div class="cl" style="border-left:4px solid #888780">
+    <div class="cl-head"><i class="ti ti-star cl-icon" style="color:#888780"></i><span class="cl-name">PR · Project Priorities</span></div>
+    <div class="cl-desc">9 pontos máximos por combinação de regional priority credits, exemplary performance (superar thresholds), pilot credits e innovation strategies. PRc2 garante 1 pt por LEED AP na equipa.</div>
+    <div class="cl-tags">
+      <span class="ctag c-green">9 pts máx.</span>
+      <span class="ctag c-gray">F_AUDIT</span>
+    </div>
+    <div class="cl-refs">USGBC Regional Priority Database · Arc (arc.gbci.org) · LEED AP BD+C</div>
+    <div class="bim-card">
+      <div class="bim-t"><i class="ti ti-cube"></i>BIM Revit — F_AUDIT (scorecard)</div>
+      <div class="bim-d">Shared params: <span class="bt">LEED_target_level</span><span class="bt">PRc1_regional_credits</span><span class="bt">PRc1_innovation_count</span><span class="bt">LEED_AP_name</span>. Sheet "LEED Scorecard" com schedule de todos os créditos, pontos disponíveis e estado de documentação por categoria.</div>
+    </div>
+    <div class="cl-note">BREEAM: Inn 01 (inovação exemplar, até 10 créd.) · BREEAM AP obrigatório para Excellent · Desempenho exemplar por categoria = +1 créd. — peso Inn 10%</div>
+    <div style="margin-top:8px"><span class="fo-chip"><i class="ti ti-sun"></i>Sun Hours</span><span class="fo-chip"><i class="ti ti-brightness"></i>Daylight</span><span class="fo-chip"><i class="ti ti-wind"></i>Wind</span><span class="fo-chip"><i class="ti ti-leaf"></i>Embodied C.</span><span class="fo-chip"><i class="ti ti-bolt"></i>Energy</span></div>
+  </div>
+  <div class="crp">
+    <div class="sec">
+      <div class="sec-t" style="color:#888780">Créditos — thresholds</div>
+      <div class="row"><span class="rl">PRc2 — LEED AP na equipa</span><span class="rv">≥ 1 LEED AP</span><span class="rb rb-ok">specialty BD+C</span></div>
+      <div class="row"><span class="rl">PRc1 — Regional Priority Credits</span><span class="rv">por região USGBC</span><span class="rb rb-ok">verificar base de dados</span></div>
+      <div class="row"><span class="rl">PRc1 — Exemplary Performance</span><span class="rv">superar threshold</span><span class="rb rb-ok">+1 pt por crédito</span></div>
+      <div class="row"><span class="rl">PRc1 — Innovation Strategies</span><span class="rv">até 3 pts</span><span class="rb rb-ok">intent + req. + submittals</span></div>
+    </div>
+    <div class="sec">
+      <div class="sec-t" style="color:#888780">Processo de certificação — 4 passos</div>
+      <div class="row"><span class="rl">1. Register</span><span class="rv">Registar em Arc (arc.gbci.org)</span></div>
+      <div class="row"><span class="rl">2. Apply</span><span class="rv">Submeter prereqs + créditos</span></div>
+      <div class="row"><span class="rl">3. Review</span><span class="rv">Preliminary 20–25 dias úteis</span><span class="rb rb-mun">+ Final review</span></div>
+      <div class="row"><span class="rl">4. Certify</span><span class="rv">Certificação emitida</span></div>
+    </div>
+    <div class="plat-box">
+      <div class="plat-t"><i class="ti ti-diamond"></i> Análises Forma → Innovation Strategies (PRc1)</div>
+      <div class="plat-d">Toda a análise preditiva Forma documentada pode suportar uma innovation strategy se superar thresholds regulamentares: Sun Hours, Daylight VSC, Wind (Lawson), Embodied Carbon, Operational Energy, Microclimate (UTCI), Noise (Lden), Green Spaces.</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /cards -->
+<div class="empty" id="empty">Nenhum resultado para os filtros selecionados.</div>
+</div><!-- /wrap -->
+
+<script>
+var activeFilter='all';
+function fp(el){
+  document.querySelectorAll('.fp').forEach(function(p){p.classList.remove('on')});
+  el.classList.add('on');
+  activeFilter=el.dataset.f;
+  applyFilters();
+}
+function doSearch(){applyFilters()}
+function clearAll(){
+  document.getElementById('search').value='';
+  document.querySelectorAll('.fp').forEach(function(p){p.classList.remove('on')});
+  document.querySelector('[data-f="all"]').classList.add('on');
+  activeFilter='all';
+  applyFilters();
+}
+function applyFilters(){
+  var q=document.getElementById('search').value.toLowerCase().trim();
+  var cards=document.querySelectorAll('.card');
+  var shown=0;
+  cards.forEach(function(c){
+    var cats=(c.dataset.cat||'').split(' ');
+    var matchF=(activeFilter==='all'||cats.indexOf(activeFilter)>=0);
+    var matchQ=(!q||c.textContent.toLowerCase().indexOf(q)>=0);
+    if(matchF&&matchQ){c.classList.remove('hidden');shown++}
+    else{c.classList.add('hidden')}
+  });
+  document.getElementById('empty').style.display=(shown===0?'block':'none');
+}
+</script>
+</body>
+</html>
